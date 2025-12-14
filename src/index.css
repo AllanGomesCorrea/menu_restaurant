@@ -1,0 +1,55 @@
+/* Diretivas do Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  body {
+    @apply bg-primary-50 text-primary-900 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  /* Container padrão para seções */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20;
+  }
+
+  /* Títulos padrão */
+  .heading-primary {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  .heading-secondary {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+
+  /* Botão padrão */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium 
+           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-700 text-white hover:bg-primary-800 
+           focus:ring-primary-500 active:bg-primary-900;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-primary-900 border-2 border-primary-300 
+           hover:bg-primary-50 focus:ring-primary-500;
+  }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

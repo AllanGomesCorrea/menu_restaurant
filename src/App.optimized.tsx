@@ -1,0 +1,113 @@
+/**
+ * App Component - Versão Otimizada
+ * Layout principal com code splitting e lazy loading
+ * 
+ * Otimizações aplicadas:
+ * - React.lazy para code splitting
+ * - Suspense para loading states
+ * - Lazy loading de componentes
+ * - Performance optimizations
+ */
+
+import React, { Suspense } from 'react';
+import { Header, Footer } from './components/layout';
+
+// Lazy loading da página principal para code splitting
+// Isso cria um bundle separado que só é carregado quando necessário
+const HomePageAnimated = React.lazy(() =>
+  import('./pages/HomePageAnimated').then((module) => ({
+    default: module.HomePageAnimated,
+  }))
+);
+
+/**
+ * Loading Component - Fallback para Suspense
+ * Exibido enquanto os componentes lazy estão carregando
+ */
+const LoadingFallback: React.FC = () => (
+  <div className="min-h-[60vh] flex items-center justify-center bg-primary-50">
+    <div className="text-center">
+      {/* Spinner animado */}
+      <div className="inline-block w-16 h-16 border-4 border-primary-200 border-t-primary-700 rounded-full animate-spin mb-4" />
+      <p className="text-primary-700 text-lg font-medium">Carregando...</p>
+    </div>
+  </div>
+);
+
+/**
+ * Error Boundary - Captura erros de rendering
+ * Boa prática: sempre usar Error Boundaries com Suspense
+ */
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-primary-50">
+          <div className="text-center max-w-md mx-auto p-8">
+            <h1 className="text-3xl font-display font-bold text-primary-900 mb-4">
+              Oops! Algo deu errado
+            </h1>
+            <p className="text-primary-700 mb-6">
+              Desculpe, houve um erro ao carregar a página. Por favor, tente
+              recarregar.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Recarregar Página
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+/**
+ * App Otimizado - Componente principal
+ * Usa code splitting e lazy loading para melhor performance
+ */
+function App() {
+  return (
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col">
+        {/* Header - carregado no bundle principal por ser crítico */}
+        <Header />
+
+        {/* Conteúdo principal com lazy loading */}
+        <div className="flex-1">
+          <Suspense fallback={<LoadingFallback />}>
+            <HomePageAnimated />
+          </Suspense>
+        </div>
+
+        {/* Footer - carregado no bundle principal */}
+        <Footer />
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+export default App;
+
+
+
