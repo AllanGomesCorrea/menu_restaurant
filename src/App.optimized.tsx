@@ -10,13 +10,20 @@
  */
 
 import React, { Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Header, Footer } from './components/layout';
 
-// Lazy loading da página principal para code splitting
-// Isso cria um bundle separado que só é carregado quando necessário
+// Lazy loading das páginas para code splitting
+// Isso cria bundles separados que só são carregados quando necessário
 const HomePageAnimated = React.lazy(() =>
   import('./pages/HomePageAnimated').then((module) => ({
     default: module.HomePageAnimated,
+  }))
+);
+
+const MenuPageAnimated = React.lazy(() =>
+  import('./pages/MenuPageAnimated').then((module) => ({
+    default: module.MenuPageAnimated,
   }))
 );
 
@@ -84,7 +91,7 @@ class ErrorBoundary extends React.Component<
 
 /**
  * App Otimizado - Componente principal
- * Usa code splitting e lazy loading para melhor performance
+ * Usa React Router, code splitting e lazy loading para melhor performance
  */
 function App() {
   return (
@@ -93,10 +100,19 @@ function App() {
         {/* Header - carregado no bundle principal por ser crítico */}
         <Header />
 
-        {/* Conteúdo principal com lazy loading */}
+        {/* Conteúdo principal com rotas e lazy loading */}
         <div className="flex-1">
           <Suspense fallback={<LoadingFallback />}>
-            <HomePageAnimated />
+            <Routes>
+              {/* Rota principal */}
+              <Route path="/" element={<HomePageAnimated />} />
+              
+              {/* Rota do cardápio */}
+              <Route path="/cardapio" element={<MenuPageAnimated />} />
+              
+              {/* Rota 404 - Redireciona para home */}
+              <Route path="*" element={<HomePageAnimated />} />
+            </Routes>
           </Suspense>
         </div>
 

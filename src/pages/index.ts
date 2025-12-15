@@ -3,6 +3,8 @@
  */
 
 export { HomePage } from './HomePage';
+export { HomePageAnimated } from './HomePageAnimated';
+export { MenuPageAnimated } from './MenuPageAnimated';
 
 
 

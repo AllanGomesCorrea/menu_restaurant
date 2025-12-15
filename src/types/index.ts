@@ -37,5 +37,30 @@ export interface BaseProps {
   className?: string;
 }
 
+// ========== MENU TYPES ==========
+
+// Categoria do menu
+export type MenuCategory = 'entradas' | 'pratos' | 'sobremesas' | 'bebidas';
+
+// Item do cardápio
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: MenuCategory;
+  image?: string;
+  featured?: boolean;
+}
+
+// Informações de categoria
+export interface CategoryInfo {
+  id: MenuCategory;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
 
 

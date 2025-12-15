@@ -16,7 +16,7 @@ export const navLinks: NavLink[] = [
   {
     id: 'cardapio',
     label: 'Cardápio',
-    href: '#cardapio',
+    href: '/cardapio',
     external: false,
   },
   {

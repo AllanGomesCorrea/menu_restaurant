@@ -10,12 +10,14 @@
  */
 
 import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useToggle } from '../../hooks/useToggle';
 import { navLinks } from '../../data/content';
 import { cn } from '../../utils/cn';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, toggleMenu, setMenuOpen] = useToggle(false);
+  const location = useLocation();
 
   // Fecha o menu ao redimensionar para desktop
   useEffect(() => {
@@ -48,32 +50,40 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo / Título */}
           <div className="flex-shrink-0">
-            <a
-              href="/"
-              className="text-2xl md:text-3xl font-display font-bold text-primary-800 hover:text-primary-900 transition-colors"
+            <Link
+              to="/"
+              className="block transition-opacity hover:opacity-80"
+              aria-label="A Casa do Porco - Página Inicial"
             >
-              A Casa do Porco
-            </a>
+              <img
+                src="/logo.png"
+                alt="A Casa do Porco"
+                className="h-20 w-[170px]"
+                loading="eager"
+              />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.href}
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-base font-medium',
-                  'text-primary-700 hover:text-primary-900',
-                  'hover:bg-primary-50',
-                  'transition-all duration-200',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500'
-                )}
-              >
-                {link.label}
-                {link.external && (
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              
+              return link.external ? (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'px-4 py-2 rounded-lg text-base font-medium',
+                    'text-primary-700 hover:text-primary-900',
+                    'hover:bg-primary-50',
+                    'transition-all duration-200',
+                    'focus:outline-none focus:ring-2 focus:ring-primary-500'
+                  )}
+                >
+                  {link.label}
                   <svg
                     className="inline-block ml-1 w-4 h-4"
                     fill="none"
@@ -88,9 +98,24 @@ export const Header: React.FC = () => {
                       d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                     />
                   </svg>
-                )}
-              </a>
-            ))}
+                </a>
+              ) : (
+                <Link
+                  key={link.id}
+                  to={link.href}
+                  className={cn(
+                    'px-4 py-2 rounded-lg text-base font-medium',
+                    'transition-all duration-200',
+                    'focus:outline-none focus:ring-2 focus:ring-primary-500',
+                    isActive
+                      ? 'bg-primary-100 text-primary-900 font-semibold'
+                      : 'text-primary-700 hover:text-primary-900 hover:bg-primary-50'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Mobile menu button */}
@@ -142,24 +167,26 @@ export const Header: React.FC = () => {
           )}
         >
           <div className="px-2 pt-2 pb-4 space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.href}
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
-                className={cn(
-                  'block px-4 py-3 rounded-lg text-base font-medium',
-                  'text-primary-700 hover:text-primary-900',
-                  'hover:bg-primary-50',
-                  'transition-all duration-200',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500'
-                )}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span className="flex items-center justify-between">
-                  {link.label}
-                  {link.external && (
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              
+              return link.external ? (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'block px-4 py-3 rounded-lg text-base font-medium',
+                    'text-primary-700 hover:text-primary-900',
+                    'hover:bg-primary-50',
+                    'transition-all duration-200',
+                    'focus:outline-none focus:ring-2 focus:ring-primary-500'
+                  )}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="flex items-center justify-between">
+                    {link.label}
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -174,10 +201,28 @@ export const Header: React.FC = () => {
                         d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                       />
                     </svg>
+                  </span>
+                </a>
+              ) : (
+                <Link
+                  key={link.id}
+                  to={link.href}
+                  className={cn(
+                    'block px-4 py-3 rounded-lg text-base font-medium',
+                    'transition-all duration-200',
+                    'focus:outline-none focus:ring-2 focus:ring-primary-500',
+                    isActive
+                      ? 'bg-primary-100 text-primary-900 font-semibold'
+                      : 'text-primary-700 hover:text-primary-900 hover:bg-primary-50'
                   )}
-                </span>
-              </a>
-            ))}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="flex items-center justify-between">
+                    {link.label}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </nav>
