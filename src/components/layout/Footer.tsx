@@ -123,7 +123,7 @@ export const Footer: React.FC = () => {
               <h4 className="text-lg font-semibold mb-3">Redes Sociais</h4>
               <div className="flex gap-4">
                 <a
-                  href="https://www.instagram.com/acasadoporco/"
+                  href="https://www.instagram.com/acasadoporcobar/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(

@@ -19,6 +19,8 @@ interface UseBookingFormReturn {
   isSubmitting: boolean;
   isSuccess: boolean;
   availableTimeSlots: TimeSlot[];
+  setName: (name: string) => void;
+  setPhone: (phone: string) => void;
   setDate: (date: Date | null) => void;
   setEnvironment: (environment: 'indoor' | 'outdoor') => void;
   setGuests: (guests: number) => void;
@@ -33,6 +35,8 @@ interface UseBookingFormReturn {
 }
 
 const initialFormData: BookingFormData = {
+  name: '',
+  phone: '',
   date: null,
   environment: null,
   guests: 2, // Padrão: 2 pessoas (casal)
@@ -65,6 +69,28 @@ export const useBookingForm = (): UseBookingFormReturn => {
     let error = '';
 
     switch (field) {
+      case 'name':
+        if (!formData.name.trim()) {
+          error = 'Por favor, informe seu nome completo';
+        } else if (formData.name.trim().length < 3) {
+          error = 'Nome deve ter pelo menos 3 caracteres';
+        } else if (formData.name.trim().length > 100) {
+          error = 'Nome muito longo (máximo 100 caracteres)';
+        }
+        break;
+
+      case 'phone':
+        // Remove a máscara para validar apenas os números
+        const phoneNumbers = formData.phone.replace(/\D/g, '');
+        if (!phoneNumbers) {
+          error = 'Por favor, informe seu telefone';
+        } else if (phoneNumbers.length < 10) {
+          error = 'Telefone inválido. Digite DDD + número';
+        } else if (phoneNumbers.length > 11) {
+          error = 'Telefone inválido';
+        }
+        break;
+
       case 'date':
         if (!formData.date) {
           error = 'Por favor, selecione uma data';
@@ -117,16 +143,36 @@ export const useBookingForm = (): UseBookingFormReturn => {
    * Valida todos os campos do formulário
    */
   const validateForm = useCallback((): boolean => {
+    const nameValid = validateField('name');
+    const phoneValid = validateField('phone');
     const dateValid = validateField('date');
     const environmentValid = validateField('environment');
     const guestsValid = validateField('guests');
     const timeSlotValid = validateField('timeSlot');
     const observationsValid = validateField('observations');
 
-    return dateValid && environmentValid && guestsValid && timeSlotValid && observationsValid;
+    return nameValid && phoneValid && dateValid && environmentValid && guestsValid && timeSlotValid && observationsValid;
   }, [validateField]);
 
   // ========== SETTERS DE CAMPOS ==========
+
+  const setName = useCallback((name: string) => {
+    setFormData(prev => ({ ...prev, name }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.name;
+      return newErrors;
+    });
+  }, []);
+
+  const setPhone = useCallback((phone: string) => {
+    setFormData(prev => ({ ...prev, phone }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.phone;
+      return newErrors;
+    });
+  }, []);
 
   const setDate = useCallback((date: Date | null) => {
     setFormData(prev => ({ ...prev, date, timeSlot: null })); // Reset timeSlot quando mudar data
@@ -225,6 +271,8 @@ export const useBookingForm = (): UseBookingFormReturn => {
     isSubmitting,
     isSuccess,
     availableTimeSlots,
+    setName,
+    setPhone,
     setDate,
     setEnvironment,
     setGuests,

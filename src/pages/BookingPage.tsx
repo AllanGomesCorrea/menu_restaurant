@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useBookingForm } from '../hooks/useBookingForm';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { NameField } from '../components/booking/NameField';
+import { PhoneField } from '../components/booking/PhoneField';
 import { DatePicker } from '../components/booking/DatePicker';
 import { EnvironmentSelector } from '../components/booking/EnvironmentSelector';
 import { GuestSelector } from '../components/booking/GuestSelector';
@@ -29,6 +31,8 @@ export const BookingPage: React.FC = () => {
     isSubmitting,
     isSuccess,
     availableTimeSlots,
+    setName,
+    setPhone,
     setDate,
     setEnvironment,
     setGuests,
@@ -139,6 +143,37 @@ export const BookingPage: React.FC = () => {
             }}
             className="space-y-8"
           >
+            {/* Dados Pessoais */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="bg-white rounded-xl p-6 md:p-8 shadow-lg border-2 border-primary-200"
+            >
+              <h2 className="text-xl font-display font-bold text-primary-900 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Seus Dados
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Campo Nome */}
+                <NameField
+                  value={formData.name}
+                  onChange={setName}
+                  error={errors.name}
+                />
+
+                {/* Campo Telefone */}
+                <PhoneField
+                  value={formData.phone}
+                  onChange={setPhone}
+                  error={errors.phone}
+                />
+              </div>
+            </motion.div>
+
             {/* 1. Seleção de Data */}
             <motion.div
               id="field-date"

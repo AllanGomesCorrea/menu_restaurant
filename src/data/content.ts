@@ -22,13 +22,13 @@ export const navLinks: NavLink[] = [
   {
     id: 'delivery',
     label: 'Delivery',
-    href: '#delivery',
-    external: false,
+    href: 'https://www.ifood.com.br/delivery/sao-paulo-sp/a-casa-do-porco-republica/f34186af-ac6b-44a7-8319-d53aab067372',
+    external: true,
   },
   {
     id: 'instagram',
     label: 'Instagram',
-    href: 'https://www.instagram.com/acasadoporco/',
+    href: 'https://www.instagram.com/acasadoporcobar/',
     external: true,
   },
 ];

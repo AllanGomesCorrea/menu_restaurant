@@ -4,6 +4,7 @@
  */
 
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MenuCard } from '../components/MenuCard';
 import { MenuCategory } from '../components/MenuCategory';
@@ -183,14 +184,18 @@ export const MenuPageAnimated: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.a
-              href="#reservas"
-              className="btn bg-accent-500 text-white hover:bg-accent-600"
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Fazer Reserva
-            </motion.a>
+              <Link 
+                to="/reservas" 
+                className="btn bg-accent-500 text-white hover:bg-accent-600"
+              >
+                Fazer Reserva
+              </Link>
+            </motion.div>
+            
             <motion.a
               href="tel:1132582578"
               className="btn bg-white text-primary-900 hover:bg-primary-50"
