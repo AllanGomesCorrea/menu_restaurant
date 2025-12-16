@@ -78,6 +78,7 @@ export interface TimeSlot {
 // Dados completos do formulário de reserva
 export interface BookingFormData {
   name: string;
+  email: string;
   phone: string;
   date: Date | null;
   environment: BookingEnvironment | null;
@@ -89,6 +90,7 @@ export interface BookingFormData {
 // Erros de validação do formulário
 export interface BookingFormErrors {
   name?: string;
+  email?: string;
   phone?: string;
   date?: string;
   environment?: string;

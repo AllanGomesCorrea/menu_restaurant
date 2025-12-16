@@ -20,6 +20,7 @@ interface UseBookingFormReturn {
   isSuccess: boolean;
   availableTimeSlots: TimeSlot[];
   setName: (name: string) => void;
+  setEmail: (email: string) => void;
   setPhone: (phone: string) => void;
   setDate: (date: Date | null) => void;
   setEnvironment: (environment: 'indoor' | 'outdoor') => void;
@@ -36,6 +37,7 @@ interface UseBookingFormReturn {
 
 const initialFormData: BookingFormData = {
   name: '',
+  email: '',
   phone: '',
   date: null,
   environment: null,
@@ -76,6 +78,14 @@ export const useBookingForm = (): UseBookingFormReturn => {
           error = 'Nome deve ter pelo menos 3 caracteres';
         } else if (formData.name.trim().length > 100) {
           error = 'Nome muito longo (máximo 100 caracteres)';
+        }
+        break;
+
+      case 'email':
+        if (!formData.email.trim()) {
+          error = 'Por favor, informe seu e-mail';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          error = 'E-mail inválido';
         }
         break;
 
@@ -144,6 +154,7 @@ export const useBookingForm = (): UseBookingFormReturn => {
    */
   const validateForm = useCallback((): boolean => {
     const nameValid = validateField('name');
+    const emailValid = validateField('email');
     const phoneValid = validateField('phone');
     const dateValid = validateField('date');
     const environmentValid = validateField('environment');
@@ -151,7 +162,7 @@ export const useBookingForm = (): UseBookingFormReturn => {
     const timeSlotValid = validateField('timeSlot');
     const observationsValid = validateField('observations');
 
-    return nameValid && phoneValid && dateValid && environmentValid && guestsValid && timeSlotValid && observationsValid;
+    return nameValid && emailValid && phoneValid && dateValid && environmentValid && guestsValid && timeSlotValid && observationsValid;
   }, [validateField]);
 
   // ========== SETTERS DE CAMPOS ==========
@@ -161,6 +172,15 @@ export const useBookingForm = (): UseBookingFormReturn => {
     setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors.name;
+      return newErrors;
+    });
+  }, []);
+
+  const setEmail = useCallback((email: string) => {
+    setFormData(prev => ({ ...prev, email }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.email;
       return newErrors;
     });
   }, []);
@@ -272,6 +292,7 @@ export const useBookingForm = (): UseBookingFormReturn => {
     isSuccess,
     availableTimeSlots,
     setName,
+    setEmail,
     setPhone,
     setDate,
     setEnvironment,

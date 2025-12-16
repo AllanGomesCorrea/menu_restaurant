@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBookingForm } from '../hooks/useBookingForm';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { NameField } from '../components/booking/NameField';
+import { EmailField } from '../components/booking/EmailField';
 import { PhoneField } from '../components/booking/PhoneField';
 import { DatePicker } from '../components/booking/DatePicker';
 import { EnvironmentSelector } from '../components/booking/EnvironmentSelector';
@@ -32,6 +33,7 @@ export const BookingPage: React.FC = () => {
     isSuccess,
     availableTimeSlots,
     setName,
+    setEmail,
     setPhone,
     setDate,
     setEnvironment,
@@ -165,6 +167,15 @@ export const BookingPage: React.FC = () => {
                   error={errors.name}
                 />
 
+                {/* Campo Email */}
+                <EmailField
+                  value={formData.email}
+                  onChange={setEmail}
+                  error={errors.email}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 {/* Campo Telefone */}
                 <PhoneField
                   value={formData.phone}
