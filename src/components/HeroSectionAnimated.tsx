@@ -10,6 +10,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { cn } from '../utils/cn';
 
@@ -132,14 +133,14 @@ export const HeroSectionAnimated: React.FC<HeroSectionAnimatedProps> = ({ classN
           >
             Ver Informações
           </motion.a>
-          <motion.a
-            href="#reservas"
-            className="btn-secondary"
+          <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Fazer Reserva
-          </motion.a>
+            <Link to="/reservas" className="btn-secondary">
+              Fazer Reserva
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
 
