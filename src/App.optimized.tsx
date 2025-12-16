@@ -27,6 +27,12 @@ const MenuPageAnimated = React.lazy(() =>
   }))
 );
 
+const BookingPage = React.lazy(() =>
+  import('./pages/BookingPage').then((module) => ({
+    default: module.BookingPage,
+  }))
+);
+
 /**
  * Loading Component - Fallback para Suspense
  * Exibido enquanto os componentes lazy estão carregando
@@ -109,6 +115,9 @@ function App() {
               
               {/* Rota do cardápio */}
               <Route path="/cardapio" element={<MenuPageAnimated />} />
+              
+              {/* Rota de reservas */}
+              <Route path="/reservas" element={<BookingPage />} />
               
               {/* Rota 404 - Redireciona para home */}
               <Route path="*" element={<HomePageAnimated />} />

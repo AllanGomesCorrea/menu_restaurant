@@ -62,5 +62,36 @@ export interface CategoryInfo {
   color: string;
 }
 
+// ========== BOOKING TYPES ==========
+
+// Tipo de ambiente (Salão ou Externo)
+export type BookingEnvironment = 'indoor' | 'outdoor';
+
+// Slot de horário disponível
+export interface TimeSlot {
+  id: string;
+  time: string; // Formato: "HH:mm"
+  available: boolean;
+  label: string; // Formato display: "11:00"
+}
+
+// Dados completos do formulário de reserva
+export interface BookingFormData {
+  date: Date | null;
+  environment: BookingEnvironment | null;
+  guests: number;
+  timeSlot: string | null; // ID do TimeSlot selecionado
+  observations: string;
+}
+
+// Erros de validação do formulário
+export interface BookingFormErrors {
+  date?: string;
+  environment?: string;
+  guests?: string;
+  timeSlot?: string;
+  observations?: string;
+}
+
 
 

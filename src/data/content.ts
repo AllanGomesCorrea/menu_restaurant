@@ -10,7 +10,7 @@ export const navLinks: NavLink[] = [
   {
     id: 'reservas',
     label: 'Reservas',
-    href: '#reservas',
+    href: '/reservas',
     external: false,
   },
   {
