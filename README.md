@@ -11,6 +11,9 @@ Clone educacional do site [A Casa do Porco](https://acasadoporco.com.br/) desenv
 - **Vite** - Build tool ultrarrápido
 - **Tailwind CSS v3** - Framework CSS utility-first
 - **Framer Motion** - Biblioteca de animações
+- **React Router** - Navegação entre páginas
+- **EmailJS** - Envio de emails de confirmação
+- **date-fns** - Manipulação de datas
 - **ESLint & Prettier** - Code quality e formatação
 
 ## 📁 Estrutura do Projeto
@@ -86,6 +89,33 @@ Preview do build de produção
 npm run lint
 ```
 Executa ESLint para verificar qualidade do código
+
+## 📧 Configuração de Email (EmailJS)
+
+O sistema de reservas envia emails de confirmação automaticamente usando EmailJS.
+
+### Configurar:
+
+1. **Copie o arquivo de exemplo:**
+```bash
+cp env.local.example .env.local
+```
+
+2. **Obtenha suas credenciais:**
+   - Acesse: https://www.emailjs.com/
+   - Crie uma conta gratuita (200 emails/mês)
+   - Configure um serviço de email (Gmail, Outlook, etc.)
+   - Crie um template de email
+
+3. **Preencha o `.env.local`:**
+```env
+VITE_EMAILJS_SERVICE_ID=seu_service_id
+VITE_EMAILJS_TEMPLATE_ID=seu_template_id
+VITE_EMAILJS_PUBLIC_KEY=sua_public_key
+```
+
+4. **Guia completo:**
+   - Veja: [CONFIGURACAO_EMAILJS.md](./CONFIGURACAO_EMAILJS.md)
 
 ## 📦 Versões dos Componentes
 

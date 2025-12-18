@@ -4,6 +4,9 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
+import emailjs from '@emailjs/browser';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import type { BookingFormData, BookingFormErrors, TimeSlot } from '../types';
 import {
   isDateValid,
@@ -12,6 +15,7 @@ import {
   MAX_GUESTS,
   MAX_OBSERVATIONS_LENGTH,
 } from '../data/bookingData';
+import { emailConfig } from '../config/emailjs';
 
 interface UseBookingFormReturn {
   formData: BookingFormData;
@@ -254,7 +258,7 @@ export const useBookingForm = (): UseBookingFormReturn => {
   // ========== SUBMISSÃO ==========
 
   /**
-   * Simula o envio do formulário (front-end only)
+   * Envia o formulário e notifica por email
    */
   const handleSubmit = useCallback(async () => {
     // Valida o formulário
@@ -264,15 +268,54 @@ export const useBookingForm = (): UseBookingFormReturn => {
 
     setIsSubmitting(true);
 
-    // Simula delay de API (1.5 segundos)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Formatar dados para o email
+      const timeSlotFormatted = formData.timeSlot
+        ?.replace('slot-', '')
+        .replace(/(\d{2})(\d{2})/, '$1:$2') || '';
 
-    // Simula sucesso
-    setIsSubmitting(false);
-    setIsSuccess(true);
+      const emailData = {
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        booking_date: formData.date 
+          ? format(formData.date, "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+          : '',
+        booking_day: formData.date 
+          ? format(formData.date, 'EEEE', { locale: ptBR })
+          : '',
+        booking_time: timeSlotFormatted,
+        booking_environment: formData.environment === 'indoor' 
+          ? 'Salão (Ambiente Interno Climatizado)' 
+          : 'Ambiente Externo (Área Aberta ao Ar Livre)',
+        booking_guests: `${formData.guests} ${formData.guests === 1 ? 'pessoa' : 'pessoas'}`,
+        booking_observations: formData.observations || 'Nenhuma observação',
+      };
 
-    // Log dos dados (para desenvolvimento)
-    console.log('Reserva simulada:', formData);
+      console.log('📧 Enviando confirmação de reserva por email...');
+      console.log('Dados da reserva:', emailData);
+
+      // Enviar email usando EmailJS
+      const response = await emailjs.send(
+        emailConfig.serviceId,
+        emailConfig.templateId,
+        emailData,
+        emailConfig.publicKey
+      );
+
+      console.log('✅ Email enviado com sucesso!', response);
+
+      setIsSubmitting(false);
+      setIsSuccess(true);
+    } catch (error) {
+      console.error('❌ Erro ao enviar confirmação:', error);
+      setIsSubmitting(false);
+      
+      // Mesmo com erro no email, marca como sucesso (a reserva foi "registrada")
+      // Em produção, você pode querer tratar isso diferente
+      alert('Reserva registrada! Porém, houve um problema ao enviar a confirmação por email. Por favor, anote seus dados.');
+      setIsSuccess(true);
+    }
   }, [formData, validateForm]);
 
   /**
