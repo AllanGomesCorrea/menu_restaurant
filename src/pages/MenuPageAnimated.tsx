@@ -38,24 +38,21 @@ export const MenuPageAnimated: React.FC = () => {
       transition={{ duration: 0.4 }}
     >
       {/* Hero Section */}
-      <section className="relative min-h-[40vh] md:min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-primary-100 via-primary-200 to-accent-100 overflow-hidden">
-        {/* Background decorativo */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20" />
+      <section className="relative min-h-[40vh] md:min-h-[50vh] flex items-center justify-center overflow-hidden">
+        {/* Imagem de fundo */}
+        <div className="absolute inset-0">
+          <img
+            src="/home_reserva.jpg"
+            alt="A Casa do Porco"
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay gradiente para garantir legibilidade do texto */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60" />
         </div>
 
         <div className="relative z-10 section-container text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-6"
-          >
-            <span className="text-5xl md:text-6xl">🍽️</span>
-          </motion.div>
-
           <motion.h1
-            className="heading-primary text-primary-900 mb-4"
+            className="heading-primary text-white mb-4 drop-shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
@@ -64,7 +61,7 @@ export const MenuPageAnimated: React.FC = () => {
           </motion.h1>
 
           <motion.p
-            className="text-xl md:text-2xl text-primary-700 font-display italic"
+            className="text-xl md:text-2xl text-white/90 font-display italic drop-shadow-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
@@ -73,7 +70,7 @@ export const MenuPageAnimated: React.FC = () => {
           </motion.p>
 
           <motion.p
-            className="text-base md:text-lg text-primary-600 max-w-2xl mx-auto mt-4"
+            className="text-base md:text-lg text-white/80 max-w-2xl mx-auto mt-4 drop-shadow-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
@@ -134,7 +131,7 @@ export const MenuPageAnimated: React.FC = () => {
       <div ref={entradasRef}>
         <MenuCategory
           category="entradas"
-          categoryTitle="🍽️ Entradas"
+          categoryTitle="Entradas"
           items={getItemsByCategory('entradas')}
           className="bg-amber-50/50"
         />
@@ -143,7 +140,7 @@ export const MenuPageAnimated: React.FC = () => {
       <div ref={pratosRef}>
         <MenuCategory
           category="pratos"
-          categoryTitle="🥩 Pratos Principais"
+          categoryTitle="Pratos Principais"
           items={getItemsByCategory('pratos')}
           className="bg-white"
         />
@@ -152,7 +149,7 @@ export const MenuPageAnimated: React.FC = () => {
       <div ref={sobremesasRef}>
         <MenuCategory
           category="sobremesas"
-          categoryTitle="🍰 Sobremesas"
+          categoryTitle="Sobremesas"
           items={getItemsByCategory('sobremesas')}
           className="bg-purple-50/50"
         />
@@ -161,7 +158,7 @@ export const MenuPageAnimated: React.FC = () => {
       <div ref={bebidasRef}>
         <MenuCategory
           category="bebidas"
-          categoryTitle="🍷 Bebidas"
+          categoryTitle="Bebidas"
           items={getItemsByCategory('bebidas')}
           className="bg-blue-50/50"
         />

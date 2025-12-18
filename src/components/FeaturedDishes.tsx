@@ -28,7 +28,7 @@ export const FeaturedDishes: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          ⭐ Pratos em Destaque
+          Pratos em Destaque
         </motion.h2>
         <motion.p
           className="text-lg text-primary-700 max-w-2xl mx-auto"

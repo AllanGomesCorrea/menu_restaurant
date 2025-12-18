@@ -93,19 +93,29 @@ export const BookingPage: React.FC = () => {
       exit={{ opacity: 0 }}
       className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50"
     >
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-800 to-primary-900 text-white py-12 md:py-16">
-        <div className="section-container">
+      {/* Hero Section com imagem de fundo */}
+      <section className="relative overflow-hidden text-white py-12 md:py-16">
+        {/* Imagem de fundo */}
+        <div className="absolute inset-0">
+          <img
+            src="/reserva.jpg"
+            alt="Reservas"
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay gradiente */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70" />
+        </div>
+        <div className="relative z-10 section-container">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="heading-primary mb-4">
-              🍽️ Faça sua Reserva
+            <h1 className="heading-primary mb-4 drop-shadow-lg">
+              Faça sua Reserva
             </h1>
-            <p className="text-lg md:text-xl text-primary-100">
+            <p className="text-lg md:text-xl text-white/90 drop-shadow-md">
               Reserve sua mesa e garanta uma experiência inesquecível na melhor cozinha caipira de São Paulo
             </p>
           </motion.div>
@@ -118,10 +128,10 @@ export const BookingPage: React.FC = () => {
             className="mt-8 max-w-2xl mx-auto"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-primary-200">Progresso</span>
-              <span className="text-sm font-medium text-primary-200">{progress}%</span>
+              <span className="text-sm font-medium text-white/80 drop-shadow">Progresso</span>
+              <span className="text-sm font-medium text-white/80 drop-shadow">{progress}%</span>
             </div>
-            <div className="h-3 bg-primary-700 rounded-full overflow-hidden">
+            <div className="h-3 bg-black/30 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
               <motion.div
                 className="h-full bg-accent-400"
                 initial={{ width: 0 }}

@@ -12,6 +12,7 @@ export const categories: CategoryInfo[] = [
     title: 'Entradas',
     description: 'Comece sua experiência gastronômica',
     icon: '🍽️',
+    image: '/entradas.jpg',
     color: 'from-amber-500 to-orange-600',
   },
   {
@@ -19,6 +20,7 @@ export const categories: CategoryInfo[] = [
     title: 'Pratos Principais',
     description: 'O melhor da cozinha caipira',
     icon: '🥩',
+    image: '/prato_principal.jpg',
     color: 'from-red-500 to-pink-600',
   },
   {
@@ -26,6 +28,7 @@ export const categories: CategoryInfo[] = [
     title: 'Sobremesas',
     description: 'Doçura para finalizar',
     icon: '🍰',
+    image: '/sobremesa.jpg',
     color: 'from-purple-500 to-pink-500',
   },
   {
@@ -33,6 +36,7 @@ export const categories: CategoryInfo[] = [
     title: 'Bebidas',
     description: 'Harmonize sua refeição',
     icon: '🍷',
+    image: '/bebidas.jpg',
     color: 'from-blue-500 to-purple-600',
   },
 ];

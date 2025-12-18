@@ -71,6 +71,7 @@ export interface EnvironmentOption {
   name: string;
   description: string;
   icon: string;
+  image: string; // Imagem do ambiente
   features: string[];
 }
 
@@ -80,6 +81,7 @@ export const environmentOptions: EnvironmentOption[] = [
     name: 'Salão',
     description: 'Ambiente interno climatizado',
     icon: '🏠',
+    image: '/ambiente.jpg',
     features: [
       'Ar condicionado',
       'Música ambiente',
@@ -91,6 +93,7 @@ export const environmentOptions: EnvironmentOption[] = [
     name: 'Ambiente Externo',
     description: 'Área aberta ao ar livre',
     icon: '🌳',
+    image: '/ambiente_externo.jpg',
     features: [
       'Ar livre',
       'Contato com natureza',

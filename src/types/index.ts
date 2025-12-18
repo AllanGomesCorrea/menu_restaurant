@@ -59,6 +59,7 @@ export interface CategoryInfo {
   title: string;
   description: string;
   icon: string;
+  image: string; // Caminho da imagem da categoria
   color: string;
 }
 
