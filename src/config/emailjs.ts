@@ -17,9 +17,9 @@
 export const emailConfig = {
   // Credenciais do EmailJS - carregadas do arquivo .env.local
   // IMPORTANTE: Vite só expõe variáveis que começam com VITE_
-  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_pbns1kl',
-  templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_da4n2e3',
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'ioBWqDglQIkWWjbwg',
+  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_id',
+  templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_id',
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_key',
 };
 
 /**
