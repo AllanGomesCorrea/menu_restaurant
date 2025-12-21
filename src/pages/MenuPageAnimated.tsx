@@ -1,6 +1,7 @@
 /**
  * Página de Cardápio - Versão Animada
  * Menu completo com categorias e pratos
+ * Busca dados da API
  */
 
 import React, { useRef } from 'react';
@@ -9,8 +10,9 @@ import { motion } from 'framer-motion';
 import { MenuCard } from '../components/MenuCard';
 import { MenuCategory } from '../components/MenuCategory';
 import { FeaturedDishes } from '../components/FeaturedDishes';
-import { categories, getItemsByCategory } from '../data/menuData';
+import { categories } from '../data/menuData';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { useMenu } from '../hooks/useMenu';
 
 /**
  * Página de Cardápio Animada
@@ -18,6 +20,7 @@ import { useScrollToTop } from '../hooks/useScrollToTop';
  */
 export const MenuPageAnimated: React.FC = () => {
   useScrollToTop();
+  const { menuByCategory, isLoading, error } = useMenu();
 
   // Refs para scroll suave
   const entradasRef = useRef<HTMLDivElement>(null);
@@ -26,8 +29,25 @@ export const MenuPageAnimated: React.FC = () => {
   const bebidasRef = useRef<HTMLDivElement>(null);
 
   // Scroll suave para seção
-  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Helper para obter itens por categoria
+  const getItemsByCategory = (categoryId: string) => {
+    if (!menuByCategory) return [];
+    switch (categoryId) {
+      case 'entradas':
+        return menuByCategory.entradas;
+      case 'pratos':
+        return menuByCategory.pratos;
+      case 'sobremesas':
+        return menuByCategory.sobremesas;
+      case 'bebidas':
+        return menuByCategory.bebidas;
+      default:
+        return [];
+    }
   };
 
   return (
@@ -80,6 +100,18 @@ export const MenuPageAnimated: React.FC = () => {
         </div>
       </section>
 
+      {/* Mensagem de erro */}
+      {error && (
+        <section className="section-container bg-red-50">
+          <div className="text-center">
+            <p className="text-red-600">{error}</p>
+            <p className="text-red-500 text-sm mt-2">
+              Verifique se o servidor está rodando em http://localhost:3000
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Grid de Categorias */}
       <section className="section-container bg-white">
         <motion.div
@@ -92,30 +124,33 @@ export const MenuPageAnimated: React.FC = () => {
             Explore Nosso Menu
           </h2>
           <p className="text-lg text-primary-700">
-            Clique em uma categoria para ver os pratos
+            {isLoading ? 'Carregando cardápio...' : 'Clique em uma categoria para ver os pratos'}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch">
           {categories.map((category, index) => {
             const items = getItemsByCategory(category.id);
-            const ref = 
-              category.id === 'entradas' ? entradasRef :
-              category.id === 'pratos' ? pratosRef :
-              category.id === 'sobremesas' ? sobremesasRef :
-              bebidasRef;
+            const ref =
+              category.id === 'entradas'
+                ? entradasRef
+                : category.id === 'pratos'
+                  ? pratosRef
+                  : category.id === 'sobremesas'
+                    ? sobremesasRef
+                    : bebidasRef;
 
             return (
               <motion.div
                 key={category.id}
-                className="h-full" // Garante que o motion.div ocupe toda a altura disponível
+                className="h-full"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
               >
                 <MenuCard
                   category={category}
-                  itemCount={items.length}
+                  itemCount={isLoading ? 0 : items.length}
                   onClick={() => scrollToSection(ref)}
                 />
               </motion.div>
@@ -128,41 +163,66 @@ export const MenuPageAnimated: React.FC = () => {
       <FeaturedDishes />
 
       {/* Categorias Completas */}
-      <div ref={entradasRef}>
-        <MenuCategory
-          category="entradas"
-          categoryTitle="Entradas"
-          items={getItemsByCategory('entradas')}
-          className="bg-amber-50/50"
-        />
-      </div>
+      {!isLoading && menuByCategory && (
+        <>
+          <div ref={entradasRef}>
+            <MenuCategory
+              category="entradas"
+              categoryTitle="Entradas"
+              items={menuByCategory.entradas}
+              className="bg-amber-50/50"
+            />
+          </div>
 
-      <div ref={pratosRef}>
-        <MenuCategory
-          category="pratos"
-          categoryTitle="Pratos Principais"
-          items={getItemsByCategory('pratos')}
-          className="bg-white"
-        />
-      </div>
+          <div ref={pratosRef}>
+            <MenuCategory
+              category="pratos"
+              categoryTitle="Pratos Principais"
+              items={menuByCategory.pratos}
+              className="bg-white"
+            />
+          </div>
 
-      <div ref={sobremesasRef}>
-        <MenuCategory
-          category="sobremesas"
-          categoryTitle="Sobremesas"
-          items={getItemsByCategory('sobremesas')}
-          className="bg-purple-50/50"
-        />
-      </div>
+          <div ref={sobremesasRef}>
+            <MenuCategory
+              category="sobremesas"
+              categoryTitle="Sobremesas"
+              items={menuByCategory.sobremesas}
+              className="bg-purple-50/50"
+            />
+          </div>
 
-      <div ref={bebidasRef}>
-        <MenuCategory
-          category="bebidas"
-          categoryTitle="Bebidas"
-          items={getItemsByCategory('bebidas')}
-          className="bg-blue-50/50"
-        />
-      </div>
+          <div ref={bebidasRef}>
+            <MenuCategory
+              category="bebidas"
+              categoryTitle="Bebidas"
+              items={menuByCategory.bebidas}
+              className="bg-blue-50/50"
+            />
+          </div>
+        </>
+      )}
+
+      {/* Skeleton loader */}
+      {isLoading && (
+        <section className="section-container bg-white">
+          <div className="text-center mb-8">
+            <div className="h-8 bg-gray-200 rounded w-48 mx-auto animate-pulse mb-4"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-md p-6 animate-pulse"
+              >
+                <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="section-container bg-gradient-to-br from-primary-800 to-primary-900 text-white">
@@ -179,20 +239,14 @@ export const MenuPageAnimated: React.FC = () => {
           <p className="text-lg md:text-xl text-primary-200 mb-8">
             Reserve sua mesa agora e desfrute da melhor cozinha caipira de São Paulo
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link 
-                to="/reservas" 
-                className="btn bg-accent-500 text-white hover:bg-accent-600"
-              >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/reservas" className="btn bg-accent-500 text-white hover:bg-accent-600">
                 Fazer Reserva
               </Link>
             </motion.div>
-            
+
             <motion.a
               href="tel:1132582578"
               className="btn bg-white text-primary-900 hover:bg-primary-50"
@@ -207,4 +261,3 @@ export const MenuPageAnimated: React.FC = () => {
     </motion.main>
   );
 };
-

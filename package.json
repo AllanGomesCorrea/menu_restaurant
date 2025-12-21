@@ -7,11 +7,21 @@
   "author": "Projeto Educacional",
   "scripts": {
     "dev": "vite",
+    "dev:all": "bash scripts/start-dev.sh",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:admin": "cd admin && npm run dev",
+    "stop": "bash scripts/stop-dev.sh",
+    "start:prod": "bash scripts/start-prod.sh",
     "build": "tsc -b && vite build",
+    "build:all": "npm run build && cd admin && npm run build",
     "build:optimized": "tsc -b && vite build --config vite.config.optimized.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:studio": "cd backend && npx prisma studio"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
