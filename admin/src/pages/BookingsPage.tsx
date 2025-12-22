@@ -207,7 +207,11 @@ export function BookingsPage() {
               >
                 <Calendar size={16} className="text-red-600" />
                 <span className="text-sm text-gray-700">
-                  {new Date(slot.date).toLocaleDateString('pt-BR')}
+                  {(() => {
+                    const dateStr = slot.date.split('T')[0];
+                    const [year, month, day] = dateStr.split('-').map(Number);
+                    return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+                  })()}
                   {slot.timeSlot && ` - ${slot.timeSlot}`}
                 </span>
                 {slot.reason && (
@@ -279,9 +283,13 @@ export function BookingsPage() {
                     </td>
                     <td className="py-3 px-4">
                       <p className="font-medium text-gray-900">
-                        {format(new Date(booking.date), "dd/MM/yyyy (EEEE)", {
-                          locale: ptBR,
-                        })}
+                        {(() => {
+                          // Parse date as UTC to avoid timezone shift
+                          const dateStr = booking.date.split('T')[0];
+                          const [year, month, day] = dateStr.split('-').map(Number);
+                          const localDate = new Date(year, month - 1, day);
+                          return format(localDate, "dd/MM/yyyy (EEEE)", { locale: ptBR });
+                        })()}
                       </p>
                       <p className="text-sm text-gray-500">{booking.timeSlot}</p>
                     </td>

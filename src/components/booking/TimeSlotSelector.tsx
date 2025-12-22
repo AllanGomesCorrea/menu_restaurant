@@ -153,43 +153,22 @@ export const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           </div>
         ) : (
           <>
-            {/* Grid responsivo de horários */}
+            {/* Grid responsivo de horários - apenas disponíveis */}
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-              {timeSlots.map((slot, index) => {
+              {timeSlots.filter(slot => slot.available).map((slot, index) => {
                 const isSelected = selectedTimeSlot === slot.id;
-                const isAvailable = slot.available;
 
                 return (
                   <motion.button
                     key={slot.id}
                     type="button"
-                    onClick={() => isAvailable && onTimeSlotSelect(slot.id)}
-                    disabled={!isAvailable}
+                    onClick={() => onTimeSlotSelect(slot.id)}
                     className={cn(
-                      'relative group',
-                      'h-14 rounded-xl font-semibold text-sm',
-                      'transition-all duration-300',
+                      'relative group h-14 rounded-xl font-semibold text-sm transition-all duration-300',
                       'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                      // Estilo selecionado
-                      isSelected && [
-                        'bg-gradient-to-br from-primary-600 to-primary-700',
-                        'text-white shadow-lg shadow-primary-300',
-                        'scale-105 z-10',
-                      ],
-                      // Estilo disponível (não selecionado)
-                      !isSelected &&
-                        isAvailable && [
-                          'bg-white border-2 border-primary-200',
-                          'text-primary-700',
-                          'hover:border-primary-400 hover:shadow-md hover:scale-105',
-                          'hover:bg-gradient-to-br hover:from-white hover:to-primary-50',
-                        ],
-                      // Estilo indisponível
-                      !isAvailable && [
-                        'bg-gray-50 border-2 border-gray-200',
-                        'text-gray-400',
-                        'cursor-not-allowed opacity-50',
-                      ]
+                      isSelected
+                        ? 'bg-gradient-to-r from-primary-700/80 via-primary-600/75 to-primary-500/70 text-white shadow-md shadow-primary-300/30 scale-[1.02] z-10 border-2 border-primary-400/60'
+                        : 'bg-white border-2 border-primary-300 text-gray-900 hover:border-primary-500 hover:shadow-md hover:scale-105'
                     )}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -199,24 +178,12 @@ export const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
                       type: 'spring',
                       stiffness: 300,
                     }}
-                    whileHover={
-                      isAvailable
-                        ? {
-                            y: -2,
-                          }
-                        : undefined
-                    }
-                    whileTap={
-                      isAvailable
-                        ? {
-                            scale: 0.95,
-                          }
-                        : undefined
-                    }
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     {/* Efeito de brilho no hover */}
-                    {isAvailable && !isSelected && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary-400/0 to-accent-400/0 group-hover:from-primary-400/10 group-hover:to-accent-400/10 transition-all duration-300" />
+                    {!isSelected && (
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary-400/0 to-primary-600/0 group-hover:from-primary-400/10 group-hover:to-primary-600/10 transition-all duration-300" />
                     )}
 
                     {/* Ícone de check para selecionado */}
