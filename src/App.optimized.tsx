@@ -33,6 +33,12 @@ const BookingPage = React.lazy(() =>
   }))
 );
 
+const QueueStatusPage = React.lazy(() =>
+  import('./pages/QueueStatusPage').then((module) => ({
+    default: module.QueueStatusPage,
+  }))
+);
+
 /**
  * Loading Component - Fallback para Suspense
  * Exibido enquanto os componentes lazy estão carregando
@@ -118,6 +124,9 @@ function App() {
               
               {/* Rota de reservas */}
               <Route path="/reservas" element={<BookingPage />} />
+              
+              {/* Rota da fila digital - status por código */}
+              <Route path="/fila/:code" element={<QueueStatusPage />} />
               
               {/* Rota 404 - Redireciona para home */}
               <Route path="*" element={<HomePageAnimated />} />

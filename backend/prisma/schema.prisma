@@ -37,6 +37,15 @@ enum BookingEnvironment {
   OUTDOOR
 }
 
+enum QueueStatus {
+  WAITING   // Aguardando na fila
+  CALLED    // Foi chamado
+  SEATED    // Sentou na mesa
+  CANCELLED // Cancelou/desistiu
+  NO_SHOW   // Não apareceu quando chamado
+  EXPIRED   // Expirou (reset automático)
+}
+
 // ================================
 // MODELS
 // ================================
@@ -105,5 +114,24 @@ model BlockedSlot {
   @@unique([date, timeSlot, environment])
   @@index([date])
   @@map("blocked_slots")
+}
+
+model QueueEntry {
+  id          String      @id @default(uuid())
+  code        String      @unique // Código único alfanumérico (ex: XKM749)
+  name        String
+  phone       String
+  partySize   Int         @default(1) @map("party_size") // Quantidade de pessoas
+  status      QueueStatus @default(WAITING)
+  calledAt    DateTime?   @map("called_at") // Quando foi chamado
+  seatedAt    DateTime?   @map("seated_at") // Quando sentou
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Índices para performance
+  @@index([status])
+  @@index([createdAt])
+  @@index([phone])
+  @@map("queue_entries")
 }
 

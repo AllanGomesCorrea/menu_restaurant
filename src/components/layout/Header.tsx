@@ -9,14 +9,16 @@
  * - Animações suaves
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useToggle } from '../../hooks/useToggle';
 import { navLinks } from '../../data/content';
 import { cn } from '../../utils/cn';
+import { QueueModal } from '../QueueModal';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, toggleMenu, setMenuOpen] = useToggle(false);
+  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
   const location = useLocation();
 
   // Fecha o menu ao redimensionar para desktop
@@ -66,6 +68,19 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-2">
+            {/* Botão Entrar na Fila */}
+            <button
+              onClick={() => setIsQueueModalOpen(true)}
+              className={cn(
+                'px-4 py-2 rounded-lg text-base font-medium',
+                'transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-primary-500',
+                'text-primary-700 hover:text-primary-900 hover:bg-primary-50'
+              )}
+            >
+              Fila
+            </button>
+            
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
               
@@ -167,6 +182,23 @@ export const Header: React.FC = () => {
           )}
         >
           <div className="px-2 pt-2 pb-4 space-y-2">
+            {/* Botão Entrar na Fila - Mobile */}
+            <button
+              onClick={() => {
+                setIsQueueModalOpen(true);
+                setMenuOpen(false);
+              }}
+              className={cn(
+                'block w-full px-4 py-3 rounded-lg text-base font-medium',
+                'transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-primary-500',
+                'text-primary-700 hover:text-primary-900 hover:bg-primary-50',
+                'text-left'
+              )}
+            >
+              Fila
+            </button>
+            
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
               
@@ -235,6 +267,12 @@ export const Header: React.FC = () => {
           aria-hidden="true"
         />
       )}
+
+      {/* Modal da Fila Digital */}
+      <QueueModal
+        isOpen={isQueueModalOpen}
+        onClose={() => setIsQueueModalOpen(false)}
+      />
     </header>
   );
 };

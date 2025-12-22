@@ -8,12 +8,14 @@ import {
   LogOut,
   Menu,
   X,
+  ListOrdered,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/queue', label: 'Fila Digital', icon: ListOrdered },
   { path: '/menu', label: 'Cardápio', icon: UtensilsCrossed },
   { path: '/bookings', label: 'Reservas', icon: Calendar },
   { path: '/users', label: 'Usuários', icon: Users },

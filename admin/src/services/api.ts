@@ -13,6 +13,8 @@ import type {
   CreateBlockedSlot,
   PaginatedResponse,
   Role,
+  QueueEntry,
+  QueueStats,
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -180,6 +182,42 @@ class ApiService {
 
   async deleteBlockedSlot(id: string): Promise<void> {
     await this.api.delete(`/blocked-slots/${id}`);
+  }
+
+  // Queue (Fila Digital)
+  async getQueueEntries(params?: { status?: string }): Promise<{ data: QueueEntry[]; total: number }> {
+    const { data } = await this.api.get<{ data: QueueEntry[]; total: number }>('/queue', { params });
+    return data;
+  }
+
+  async getQueueStats(): Promise<QueueStats> {
+    const { data } = await this.api.get<QueueStats>('/queue/stats');
+    return data;
+  }
+
+  async callQueueEntry(id: string): Promise<QueueEntry> {
+    const { data } = await this.api.patch<QueueEntry>(`/queue/${id}/call`);
+    return data;
+  }
+
+  async seatQueueEntry(id: string): Promise<QueueEntry> {
+    const { data } = await this.api.patch<QueueEntry>(`/queue/${id}/seat`);
+    return data;
+  }
+
+  async noShowQueueEntry(id: string): Promise<QueueEntry> {
+    const { data } = await this.api.patch<QueueEntry>(`/queue/${id}/no-show`);
+    return data;
+  }
+
+  async cancelQueueEntry(id: string): Promise<QueueEntry> {
+    const { data } = await this.api.patch<QueueEntry>(`/queue/${id}/cancel`);
+    return data;
+  }
+
+  async clearQueue(): Promise<{ count: number; message: string }> {
+    const { data } = await this.api.delete<{ count: number; message: string }>('/queue/clear');
+    return data;
   }
 
   // Dashboard Stats

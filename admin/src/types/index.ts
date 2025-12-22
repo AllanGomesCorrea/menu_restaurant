@@ -120,3 +120,29 @@ export interface DashboardStats {
   activeMenuItems: number;
 }
 
+// Queue types (Fila Digital)
+export type QueueStatus = 'WAITING' | 'CALLED' | 'SEATED' | 'CANCELLED' | 'NO_SHOW' | 'EXPIRED';
+
+export interface QueueEntry {
+  id: string;
+  code: string;
+  name: string;
+  phone: string;
+  partySize: number;
+  status: QueueStatus;
+  position?: number;
+  peopleAhead?: number;
+  calledAt?: string;
+  seatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QueueStats {
+  waiting: number;
+  called: number;
+  seated: number;
+  noShow: number;
+  cancelled: number;
+}
+

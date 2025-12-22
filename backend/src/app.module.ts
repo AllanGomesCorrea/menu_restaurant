@@ -8,6 +8,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { BlockedSlotsModule } from './blocked-slots/blocked-slots.module';
 import { HealthModule } from './health/health.module';
 import { BootstrapModule } from './bootstrap/bootstrap.module';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BootstrapModule } from './bootstrap/bootstrap.module';
     MenuModule,
     BookingsModule,
     BlockedSlotsModule,
+    QueueModule,
     HealthModule,
   ],
 })

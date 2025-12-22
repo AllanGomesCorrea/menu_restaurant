@@ -8,6 +8,7 @@ import { MenuPage } from './pages/MenuPage';
 import { BookingsPage } from './pages/BookingsPage';
 import { UsersPage } from './pages/UsersPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { QueuePage } from './pages/QueuePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ function App() {
             }
           >
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/queue" element={<QueuePage />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/bookings" element={<BookingsPage />} />
             <Route path="/users" element={<UsersPage />} />
