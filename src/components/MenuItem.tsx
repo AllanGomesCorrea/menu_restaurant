@@ -22,18 +22,9 @@ interface MenuItemProps {
  * Clique abre modal com detalhes completos
  */
 export const MenuItem: React.FC<MenuItemProps> = ({ item, index = 0, onClick }) => {
-  // Imagem padrão por categoria
-  const getDefaultImage = (category: string) => {
-    const images: Record<string, string> = {
-      entradas: '/entradas.jpg',
-      pratos: '/prato_principal.jpg',
-      sobremesas: '/sobremesa.jpg',
-      bebidas: '/bebidas.jpg',
-    };
-    return images[category] || '/prato_principal.jpg';
-  };
-
-  const imageUrl = item.image || getDefaultImage(item.category);
+  // Usa logo como imagem padrão quando não há foto
+  const imageUrl = item.image || '/logo.png';
+  const isLogo = !item.image;
 
   return (
     <motion.div
@@ -55,11 +46,19 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, index = 0, onClick }) 
       onClick={onClick}
     >
       {/* Imagem */}
-      <div className="relative h-48 overflow-hidden">
+      <div className={cn(
+        "relative h-48 overflow-hidden",
+        isLogo && "bg-primary-50 flex items-center justify-center"
+      )}>
         <img
           src={imageUrl}
           alt={item.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className={cn(
+            "transition-transform duration-500 group-hover:scale-110",
+            isLogo 
+              ? "w-32 h-32 object-contain" 
+              : "w-full h-full object-cover"
+          )}
         />
         {/* Overlay no hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
