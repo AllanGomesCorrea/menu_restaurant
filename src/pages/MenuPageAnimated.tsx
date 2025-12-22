@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MenuCard } from '../components/MenuCard';
 import { MenuCategory } from '../components/MenuCategory';
-import { FeaturedDishes } from '../components/FeaturedDishes';
+import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import { categories } from '../data/menuData';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { useMenu } from '../hooks/useMenu';
@@ -159,8 +159,8 @@ export const MenuPageAnimated: React.FC = () => {
         </div>
       </section>
 
-      {/* Pratos em Destaque */}
-      <FeaturedDishes />
+      {/* Carrossel de Pratos em Destaque */}
+      <FeaturedCarousel />
 
       {/* Categorias Completas */}
       {!isLoading && menuByCategory && (
