@@ -128,6 +128,11 @@ class ApiService {
     await this.api.delete(`/menu/${id}`);
   }
 
+  async getMenuImages(): Promise<string[]> {
+    const { data } = await this.api.get<{ images: string[] }>('/menu/images');
+    return data.images;
+  }
+
   // Bookings
   async getBookings(params?: {
     page?: number;

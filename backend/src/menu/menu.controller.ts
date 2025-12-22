@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Put,
-  Patch,
   Delete,
   Body,
   Param,
@@ -12,7 +11,13 @@ import {
   HttpStatus,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Role, MenuCategory } from '@prisma/client';
 import { MenuService } from './menu.service';
 import {
@@ -20,9 +25,10 @@ import {
   UpdateMenuItemDto,
   MenuItemResponseDto,
   MenuListResponseDto,
-  MenuByCategoryResponseDto,
 } from './dto';
 import { Roles, Public } from '../common/decorators';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @ApiTags('menu')
 @Controller('menu')
@@ -30,11 +36,82 @@ export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
   @Public()
+  @Get('images')
+  @ApiOperation({ summary: 'Listar imagens disponíveis na pasta menu-images' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de URLs de imagens disponíveis',
+  })
+  getAvailableImages(): { images: string[] } {
+    // Caminho para a pasta de imagens do menu no frontend
+    // Resolve a partir da raiz do projeto (backend está em /backend)
+    const possiblePaths = [
+      path.resolve(process.cwd(), '../public/menu-images'),  // Quando rodando de /backend
+      path.resolve(process.cwd(), 'public/menu-images'),     // Quando rodando da raiz
+      path.resolve(__dirname, '../../../public/menu-images'), // Fallback
+    ];
+    
+    let menuImagesPath = '';
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        menuImagesPath = p;
+        break;
+      }
+    }
+    
+    if (!menuImagesPath) {
+      console.log('Pasta menu-images não encontrada. Caminhos tentados:', possiblePaths);
+      return { images: [] };
+    }
+    
+    try {
+      const files = fs.readdirSync(menuImagesPath);
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      
+      // Em desenvolvimento, usa URL do frontend principal (5173)
+      // Em produção, usa caminho relativo
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? '' 
+        : 'http://localhost:5173';
+      
+      const images = files
+        .filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return imageExtensions.includes(ext);
+        })
+        .map(file => `${baseUrl}/menu-images/${file}`);
+      
+      console.log(`Encontradas ${images.length} imagens em ${menuImagesPath}`);
+      return { images };
+    } catch (error) {
+      console.error('Erro ao listar imagens:', error);
+      return { images: [] };
+    }
+  }
+
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Listar todos os itens do cardápio (público)' })
-  @ApiQuery({ name: 'category', required: false, enum: MenuCategory })
-  @ApiQuery({ name: 'available', required: false, type: Boolean })
-  @ApiQuery({ name: 'featured', required: false, type: Boolean })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    enum: MenuCategory,
+    description: 'Filtrar por categoria',
+  })
+  @ApiQuery({
+    name: 'featured',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar apenas destaques',
+  })
+  @ApiQuery({
+    name: 'available',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar apenas disponíveis',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({
     status: 200,
     description: 'Lista de itens do cardápio',
@@ -42,53 +119,50 @@ export class MenuController {
   })
   async findAll(
     @Query('category') category?: MenuCategory,
-    @Query('available') available?: boolean,
-    @Query('featured') featured?: boolean,
+    @Query('featured') featured?: string,
+    @Query('available') available?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ): Promise<MenuListResponseDto> {
-    return this.menuService.findAll({ category, available, featured });
+    return this.menuService.findAll({
+      category,
+      featured: featured === 'true' ? true : featured === 'false' ? false : undefined,
+      available: available === 'true' ? true : available === 'false' ? false : undefined,
+      page: page ? parseInt(page, 10) : undefined,
+      limit: limit ? parseInt(limit, 10) : undefined,
+    });
   }
 
   @Public()
-  @Get('by-category')
-  @ApiOperation({ summary: 'Listar itens do cardápio agrupados por categoria (público)' })
+  @Get('categories')
+  @ApiOperation({ summary: 'Listar categorias com seus itens' })
   @ApiResponse({
     status: 200,
-    description: 'Itens do cardápio agrupados por categoria',
-    type: MenuByCategoryResponseDto,
+    description: 'Cardápio agrupado por categoria',
   })
-  async findByCategory(): Promise<MenuByCategoryResponseDto> {
+  async findByCategories() {
     return this.menuService.findByCategory();
   }
 
   @Public()
-  @Get('featured')
-  @ApiOperation({ summary: 'Listar itens em destaque (público)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de itens em destaque',
-    type: [MenuItemResponseDto],
-  })
-  async findFeatured(): Promise<MenuItemResponseDto[]> {
-    return this.menuService.findFeatured();
-  }
-
-  @Public()
   @Get(':id')
-  @ApiOperation({ summary: 'Buscar item do cardápio por ID (público)' })
+  @ApiOperation({ summary: 'Buscar item por ID' })
   @ApiResponse({
     status: 200,
-    description: 'Dados do item',
+    description: 'Item encontrado',
     type: MenuItemResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Item não encontrado' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<MenuItemResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MenuItemResponseDto> {
     return this.menuService.findOne(id);
   }
 
   @Post()
   @Roles(Role.ADMIN)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Criar novo item do cardápio (apenas Admin)' })
+  @ApiOperation({ summary: 'Criar novo item no cardápio (apenas Admin)' })
   @ApiResponse({
     status: 201,
     description: 'Item criado com sucesso',
@@ -96,15 +170,17 @@ export class MenuController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
-  @ApiResponse({ status: 403, description: 'Sem permissão' })
-  async create(@Body() createMenuItemDto: CreateMenuItemDto): Promise<MenuItemResponseDto> {
+  @ApiResponse({ status: 403, description: 'Acesso negado' })
+  async create(
+    @Body() createMenuItemDto: CreateMenuItemDto,
+  ): Promise<MenuItemResponseDto> {
     return this.menuService.create(createMenuItemDto);
   }
 
   @Put(':id')
   @Roles(Role.ADMIN, Role.SUPERVISOR)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Atualizar item do cardápio (Supervisor + Admin)' })
+  @ApiOperation({ summary: 'Atualizar item do cardápio' })
   @ApiResponse({
     status: 200,
     description: 'Item atualizado com sucesso',
@@ -118,38 +194,10 @@ export class MenuController {
     return this.menuService.update(id, updateMenuItemDto);
   }
 
-  @Patch(':id/toggle-availability')
-  @Roles(Role.ADMIN, Role.SUPERVISOR)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Alternar disponibilidade do item (Supervisor + Admin)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Disponibilidade alterada',
-    type: MenuItemResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Item não encontrado' })
-  async toggleAvailability(@Param('id', ParseUUIDPipe) id: string): Promise<MenuItemResponseDto> {
-    return this.menuService.toggleAvailability(id);
-  }
-
-  @Patch(':id/toggle-featured')
-  @Roles(Role.ADMIN, Role.SUPERVISOR)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Alternar destaque do item (Supervisor + Admin)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Destaque alterado',
-    type: MenuItemResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Item não encontrado' })
-  async toggleFeatured(@Param('id', ParseUUIDPipe) id: string): Promise<MenuItemResponseDto> {
-    return this.menuService.toggleFeatured(id);
-  }
-
   @Delete(':id')
   @Roles(Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth('JWT-auth')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remover item do cardápio (apenas Admin)' })
   @ApiResponse({ status: 204, description: 'Item removido com sucesso' })
   @ApiResponse({ status: 404, description: 'Item não encontrado' })
@@ -157,4 +205,3 @@ export class MenuController {
     return this.menuService.remove(id);
   }
 }
-

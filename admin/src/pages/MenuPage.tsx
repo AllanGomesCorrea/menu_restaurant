@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff, FolderOpen, X, Image } from 'lucide-react';
 import api from '../services/api';
 import type { MenuItem, CreateMenuItem, MenuCategory } from '../types';
 import { useAuthStore } from '../stores/authStore';
@@ -17,6 +17,9 @@ export function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | 'ALL'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [isImageBrowserOpen, setIsImageBrowserOpen] = useState(false);
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
   const { user } = useAuthStore();
 
   const isAdmin = user?.role === 'ADMIN';
@@ -135,6 +138,25 @@ export function MenuPage() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingItem(null);
+  };
+
+  const openImageBrowser = async () => {
+    setIsLoadingImages(true);
+    setIsImageBrowserOpen(true);
+    try {
+      const images = await api.getMenuImages();
+      setAvailableImages(images);
+    } catch (error) {
+      console.error('Erro ao carregar imagens:', error);
+      setAvailableImages([]);
+    } finally {
+      setIsLoadingImages(false);
+    }
+  };
+
+  const selectImage = (imageUrl: string) => {
+    setFormData({ ...formData, imageUrl });
+    setIsImageBrowserOpen(false);
   };
 
   const filteredItems = selectedCategory === 'ALL'
@@ -367,16 +389,45 @@ export function MenuPage() {
               </div>
 
               <div>
-                <label className="label">URL da Imagem</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
-                  className="input"
-                  placeholder="https://..."
-                />
+                <label className="label">Imagem</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.imageUrl}
+                    onChange={(e) =>
+                      setFormData({ ...formData, imageUrl: e.target.value })
+                    }
+                    className="input flex-1"
+                    placeholder="/menu-images/foto.jpg ou https://..."
+                  />
+                  <button
+                    type="button"
+                    onClick={openImageBrowser}
+                    className="btn-secondary px-3"
+                    title="Procurar imagem"
+                  >
+                    <FolderOpen size={20} />
+                  </button>
+                </div>
+                {formData.imageUrl && (
+                  <div className="mt-2 relative inline-block">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Preview"
+                      className="h-20 w-32 object-cover rounded-lg border border-gray-200"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-6">
@@ -413,6 +464,69 @@ export function MenuPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Browser Modal */}
+      {isImageBrowserOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <FolderOpen size={20} />
+                Selecionar Imagem
+              </h3>
+              <button
+                onClick={() => setIsImageBrowserOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {isLoadingImages ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-800"></div>
+                </div>
+              ) : availableImages.length === 0 ? (
+                <div className="text-center py-12">
+                  <Image size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500 mb-2">Nenhuma imagem encontrada</p>
+                  <p className="text-sm text-gray-400">
+                    Adicione imagens na pasta <code className="bg-gray-100 px-2 py-1 rounded">public/menu-images/</code>
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  {availableImages.map((image) => (
+                    <button
+                      key={image}
+                      onClick={() => selectImage(image)}
+                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                        formData.imageUrl === image
+                          ? 'border-primary-500 ring-2 ring-primary-300'
+                          : 'border-gray-200 hover:border-primary-300'
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={image.split('/').pop()}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate">
+                        {image.split('/').pop()}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <p className="text-xs text-gray-500">
+                💡 Para adicionar novas imagens, coloque os arquivos na pasta <code className="bg-gray-200 px-1 rounded">public/menu-images/</code> do projeto frontend.
+              </p>
+            </div>
           </div>
         </div>
       )}

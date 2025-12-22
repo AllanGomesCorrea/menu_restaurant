@@ -7,7 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUrl,
+  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -72,12 +72,14 @@ export class CreateMenuItemDto {
   available?: boolean;
 
   @ApiPropertyOptional({
-    description: 'URL da imagem do prato',
-    example: 'https://example.com/costela.jpg',
+    description: 'URL da imagem do prato (URL completa ou caminho relativo)',
+    example: '/menu-images/costela.jpg',
   })
   @IsOptional()
   @IsString()
-  @IsUrl({}, { message: 'URL da imagem inválida' })
+  @Matches(/^(https?:\/\/.*|\/.*\.(jpg|jpeg|png|gif|webp|svg))$/i, {
+    message: 'Imagem inválida. Use uma URL (http://...) ou caminho relativo (/menu-images/...)',
+  })
   imageUrl?: string;
 
   @ApiPropertyOptional({

@@ -16,8 +16,10 @@ export class MenuService {
     category?: MenuCategory;
     available?: boolean;
     featured?: boolean;
-  }): Promise<{ data: MenuItemResponseDto[]; total: number }> {
-    const { category, available, featured } = params || {};
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: MenuItemResponseDto[]; total: number; page: number; limit: number }> {
+    const { category, available, featured, page = 1, limit = 100 } = params || {};
 
     const where: Record<string, unknown> = {};
 
@@ -33,15 +35,19 @@ export class MenuService {
       where.featured = featured;
     }
 
+    const skip = (page - 1) * limit;
+
     const [items, total] = await Promise.all([
       this.prisma.menuItem.findMany({
         where,
         orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }, { name: 'asc' }],
+        skip,
+        take: limit,
       }),
       this.prisma.menuItem.count({ where }),
     ]);
 
-    return { data: items, total };
+    return { data: items, total, page, limit };
   }
 
   async findByCategory(): Promise<MenuByCategoryResponseDto> {
