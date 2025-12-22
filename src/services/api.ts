@@ -162,14 +162,15 @@ export const menuApi = {
    * Buscar itens agrupados por categoria
    */
   getByCategory: () => {
-    return request<ApiMenuByCategory>('/menu/by-category');
+    return request<ApiMenuByCategory>('/menu/categories');
   },
 
   /**
    * Buscar itens em destaque
    */
-  getFeatured: () => {
-    return request<ApiMenuItem[]>('/menu/featured');
+  getFeatured: async () => {
+    const response = await request<ApiMenuResponse>('/menu?featured=true');
+    return response.data;
   },
 
   /**
