@@ -55,7 +55,7 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
     const savedCode = localStorage.getItem('queueCode');
     if (savedCode && isOpen) {
       setCheckCode(savedCode);
-      handleCheckStatus(savedCode);
+      handleCheckStatus(savedCode, true); // true = veio do localStorage
     }
   }, [isOpen]);
 
@@ -147,7 +147,7 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleCheckStatus = async (code?: string) => {
+  const handleCheckStatus = async (code?: string, isFromLocalStorage = false) => {
     const codeToCheck = code || checkCode;
     if (!codeToCheck) return;
 
@@ -159,12 +159,27 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
       const data = await response.json();
 
       if (!response.ok) {
+        // Se o código veio do localStorage e não existe mais, limpar e mostrar form
+        if (isFromLocalStorage && response.status === 404) {
+          localStorage.removeItem('queueCode');
+          setCheckCode('');
+          setStep('form');
+          // Não mostrar erro, apenas voltar ao formulário silenciosamente
+          return;
+        }
         throw new Error(data.message || 'Código não encontrado');
       }
 
       setStatusInfo(data);
       setStep('check');
     } catch (err) {
+      // Se veio do localStorage e deu erro, limpar e ir pro form
+      if (isFromLocalStorage) {
+        localStorage.removeItem('queueCode');
+        setCheckCode('');
+        setStep('form');
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Erro ao verificar status');
     } finally {
       setIsLoading(false);
