@@ -116,6 +116,13 @@ export function DashboardPage() {
     }
   };
 
+  // Função para formatar data sem problemas de timezone
+  const formatDate = (dateString: string) => {
+    // dateString vem como "2025-01-06" (YYYY-MM-DD)
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -187,7 +194,7 @@ export function DashboardPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-gray-600">
-                      {new Date(booking.date).toLocaleDateString('pt-BR')}
+                      {formatDate(booking.date)}
                     </td>
                     <td className="py-3 px-4 text-gray-600">
                       {booking.timeSlot}

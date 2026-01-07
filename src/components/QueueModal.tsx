@@ -59,6 +59,22 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
+  // Auto-refresh a cada 10 segundos quando estiver visualizando status (WAITING ou CALLED)
+  useEffect(() => {
+    if (!isOpen || step !== 'check' || !statusInfo) return;
+    
+    // Só faz polling se estiver aguardando ou foi chamado
+    if (statusInfo.status !== 'WAITING' && statusInfo.status !== 'CALLED') {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      handleCheckStatus(statusInfo.code);
+    }, 10000); // 10 segundos
+
+    return () => clearInterval(interval);
+  }, [isOpen, step, statusInfo?.status, statusInfo?.code]);
+
   /**
    * Aplica máscara de telefone brasileiro
    * Formato: (11) 98765-4321 ou (11) 3456-7890
@@ -500,6 +516,9 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
                         <p className="text-gray-500 text-sm mt-1">
                           Bom apetite! 🍽️
                         </p>
+                        <p className="text-gray-400 text-xs mt-3">
+                          Deseja entrar na fila novamente?
+                        </p>
                       </div>
                     )}
 
@@ -536,7 +555,7 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
                           </button>
                         </>
                       )}
-                      {(statusInfo.status === 'CANCELLED' || statusInfo.status === 'NO_SHOW' || statusInfo.status === 'EXPIRED') && (
+                      {(statusInfo.status === 'CANCELLED' || statusInfo.status === 'NO_SHOW' || statusInfo.status === 'EXPIRED' || statusInfo.status === 'SEATED') && (
                         <button
                           onClick={handleNewEntry}
                           className="flex-1 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
@@ -545,6 +564,13 @@ export const QueueModal: React.FC<QueueModalProps> = ({ isOpen, onClose }) => {
                         </button>
                       )}
                     </div>
+
+                    {/* Mensagem de auto-refresh */}
+                    {(statusInfo.status === 'WAITING' || statusInfo.status === 'CALLED') && (
+                      <p className="text-xs text-gray-400 text-center mt-3">
+                        Atualizando automaticamente a cada 10 segundos
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

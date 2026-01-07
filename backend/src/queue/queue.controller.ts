@@ -180,13 +180,13 @@ export class QueueController {
   @ApiOperation({ summary: 'Limpar fila do dia (Admin)' })
   @ApiResponse({
     status: 200,
-    description: 'Fila limpa',
+    description: 'Fila limpa (registros deletados)',
   })
   async clearQueue(): Promise<{ count: number; message: string }> {
     const result = await this.queueService.clearQueue();
     return {
       ...result,
-      message: `${result.count} entrada(s) expirada(s)`,
+      message: `${result.count} registro(s) removido(s) da fila`,
     };
   }
 }

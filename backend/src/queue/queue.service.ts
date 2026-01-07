@@ -389,18 +389,14 @@ export class QueueService {
   }
 
   /**
-   * Limpar fila do dia (marca como expirado)
+   * Limpar fila do dia (deleta TODOS os registros do dia)
    */
   async clearQueue(): Promise<{ count: number }> {
     const { start, end } = this.getTodayRange();
 
-    const result = await this.prisma.queueEntry.updateMany({
+    const result = await this.prisma.queueEntry.deleteMany({
       where: {
-        status: { in: [QueueStatus.WAITING, QueueStatus.CALLED] },
         createdAt: { gte: start, lt: end },
-      },
-      data: {
-        status: QueueStatus.EXPIRED,
       },
     });
 
@@ -409,18 +405,15 @@ export class QueueService {
 
   /**
    * Reset automático (chamado por cron à meia-noite)
+   * Deleta registros de dias anteriores
    */
   async autoExpire(): Promise<{ count: number }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const result = await this.prisma.queueEntry.updateMany({
+    const result = await this.prisma.queueEntry.deleteMany({
       where: {
-        status: { in: [QueueStatus.WAITING, QueueStatus.CALLED] },
         createdAt: { lt: today },
-      },
-      data: {
-        status: QueueStatus.EXPIRED,
       },
     });
 

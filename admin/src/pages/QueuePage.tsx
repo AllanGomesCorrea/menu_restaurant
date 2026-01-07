@@ -102,10 +102,10 @@ export function QueuePage() {
   };
 
   const handleClearQueue = async () => {
-    if (!confirm('Limpar toda a fila do dia? Esta ação não pode ser desfeita.')) return;
+    if (!confirm('⚠️ ATENÇÃO: Isso vai APAGAR PERMANENTEMENTE todos os registros da fila do dia (aguardando, atendidos, cancelados, etc).\n\nTem certeza que deseja continuar?')) return;
     try {
       const result = await api.clearQueue();
-      alert(result.message);
+      alert(`✅ ${result.message}`);
       await loadData();
     } catch (err) {
       alert('Erro ao limpar fila');

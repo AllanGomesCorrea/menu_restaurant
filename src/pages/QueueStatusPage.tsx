@@ -49,18 +49,26 @@ export const QueueStatusPage: React.FC = () => {
     }
   };
 
+  // Buscar status inicial
   useEffect(() => {
     fetchStatus();
+  }, [code]);
+
+  // Auto-refresh a cada 10 segundos enquanto aguardando ou chamado
+  useEffect(() => {
+    if (!statusInfo) return;
     
-    // Auto-refresh a cada 30 segundos se estiver aguardando
+    // Só faz polling se estiver aguardando ou foi chamado
+    if (statusInfo.status !== 'WAITING' && statusInfo.status !== 'CALLED') {
+      return;
+    }
+
     const interval = setInterval(() => {
-      if (statusInfo?.status === 'WAITING' || statusInfo?.status === 'CALLED') {
-        fetchStatus();
-      }
-    }, 30000);
+      fetchStatus();
+    }, 10000); // 10 segundos
 
     return () => clearInterval(interval);
-  }, [code]);
+  }, [statusInfo?.status, code]);
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -298,7 +306,7 @@ export const QueueStatusPage: React.FC = () => {
         {/* Dica */}
         {statusInfo.status === 'WAITING' && (
           <p className="text-center text-sm text-gray-500 mt-6">
-            💡 Esta página atualiza automaticamente a cada 30 segundos
+            💡 Esta página atualiza automaticamente a cada 10 segundos
           </p>
         )}
 
