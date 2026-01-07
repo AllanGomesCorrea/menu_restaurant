@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Calendar, UtensilsCrossed, Clock, Users } from 'lucide-react';
 import api from '../services/api';
 import type { Booking } from '../types';
+import { BookingCalendar } from '../components/BookingCalendar';
 
 interface Stats {
   todayBookings: number;
@@ -17,14 +18,15 @@ export function DashboardPage() {
     totalMenuItems: 0,
     totalUsers: 0,
   });
-  const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
+  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
+  const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [bookingsRes, menuItems, usersRes] = await Promise.all([
-          api.getBookings({ limit: 100 }),
+          api.getBookings({ limit: 500 }), // Buscar mais para o calendário
           api.getMenuItems(),
           api.getUsers({ limit: 1 }),
         ]);
@@ -44,7 +46,30 @@ export function DashboardPage() {
           totalUsers: usersRes.total,
         });
 
-        setRecentBookings(bookingsRes.data.slice(0, 5));
+        // Guardar todas as reservas para o calendário
+        setAllBookings(bookingsRes.data);
+
+        // Filtrar e ordenar para pegar as 5 próximas reservas (a partir de hoje)
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        
+        const upcoming = bookingsRes.data
+          .filter((b) => {
+            // Extrair data da reserva sem timezone
+            const [year, month, day] = b.date.split('T')[0].split('-');
+            const bookingDate = new Date(Number(year), Number(month) - 1, Number(day));
+            // Só reservas confirmadas ou pendentes de hoje em diante
+            return bookingDate >= now && b.status !== 'CANCELLED';
+          })
+          .sort((a, b) => {
+            // Ordenar por data + horário
+            const dateCompare = a.date.split('T')[0].localeCompare(b.date.split('T')[0]);
+            if (dateCompare !== 0) return dateCompare;
+            return a.timeSlot.localeCompare(b.timeSlot);
+          })
+          .slice(0, 5);
+
+        setUpcomingBookings(upcoming);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       } finally {
@@ -146,14 +171,19 @@ export function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent Bookings */}
+      {/* Próximas Reservas */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Reservas Recentes
-        </h2>
-        {recentBookings.length === 0 ? (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Próximas Reservas
+          </h2>
+          <span className="text-sm text-gray-500">
+            As 5 mais próximas
+          </span>
+        </div>
+        {upcomingBookings.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            Nenhuma reserva encontrada
+            Nenhuma reserva próxima encontrada
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -178,7 +208,7 @@ export function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentBookings.map((booking) => (
+                {upcomingBookings.map((booking) => (
                   <tr
                     key={booking.id}
                     className="border-b border-gray-100 hover:bg-gray-50"
@@ -215,6 +245,14 @@ export function DashboardPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Calendário de Reservas */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Calendário de Reservas
+        </h2>
+        <BookingCalendar bookings={allBookings} />
       </div>
     </div>
   );

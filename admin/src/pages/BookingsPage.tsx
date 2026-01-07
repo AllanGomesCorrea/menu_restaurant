@@ -12,12 +12,21 @@ const STATUS_OPTIONS: { value: BookingStatus | 'ALL'; label: string }[] = [
   { value: 'CANCELLED', label: 'Canceladas' },
 ];
 
+// Retorna a data de hoje no formato YYYY-MM-DD
+const getTodayDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [blockedSlots, setBlockedSlots] = useState<BlockedSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | 'ALL'>('ALL');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(getTodayDateString()); // Inicia com hoje
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [blockDate, setBlockDate] = useState('');
   const [blockReason, setBlockReason] = useState('');
@@ -182,16 +191,20 @@ export function BookingsPage() {
               ))}
             </select>
           </div>
-          {selectedDate && (
-            <div className="flex items-end">
-              <button
-                onClick={() => setSelectedDate('')}
-                className="btn-secondary text-sm"
-              >
-                Limpar filtros
-              </button>
-            </div>
-          )}
+          <div className="flex items-end gap-2">
+            <button
+              onClick={() => setSelectedDate(getTodayDateString())}
+              className="btn-secondary text-sm"
+            >
+              Hoje
+            </button>
+            <button
+              onClick={() => setSelectedDate('')}
+              className="btn-secondary text-sm"
+            >
+              Ver todas
+            </button>
+          </div>
         </div>
       </div>
 
