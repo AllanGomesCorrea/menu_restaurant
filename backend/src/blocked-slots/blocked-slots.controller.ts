@@ -17,6 +17,7 @@ import {
   CreateBlockedSlotDto,
   BlockedSlotResponseDto,
   BlockedSlotListResponseDto,
+  BlockDayDto,
 } from './dto';
 import { Roles } from '../common/decorators';
 
@@ -85,20 +86,20 @@ export class BlockedSlotsController {
   @Post('block-day')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Bloquear dia inteiro (apenas Admin)' })
-  @ApiQuery({ name: 'date', required: true, description: 'Data (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'environment', required: false, enum: BookingEnvironment })
-  @ApiQuery({ name: 'reason', required: false, description: 'Motivo do bloqueio' })
   @ApiResponse({
     status: 201,
     description: 'Dia bloqueado com sucesso',
     type: [BlockedSlotResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   async blockEntireDay(
-    @Query('date') date: string,
-    @Query('environment') environment?: BookingEnvironment,
-    @Query('reason') reason?: string,
+    @Body() blockDayDto: BlockDayDto,
   ): Promise<BlockedSlotResponseDto[]> {
-    return this.blockedSlotsService.blockEntireDay(date, environment, reason);
+    return this.blockedSlotsService.blockEntireDay(
+      blockDayDto.date,
+      blockDayDto.environment,
+      blockDayDto.reason,
+    );
   }
 
   @Delete('unblock-day')
