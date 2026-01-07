@@ -110,7 +110,7 @@ const InfoListItemAnimated: React.FC<{
         viewport={{ once: true }}
         transition={{ delay: index * 0.1 + 0.3 }}
       >
-        <svg
+        {/* <svg
           className="w-5 h-5 text-primary-400"
           fill="none"
           stroke="currentColor"
@@ -123,7 +123,7 @@ const InfoListItemAnimated: React.FC<{
             strokeWidth={2}
             d="M9 5l7 7-7 7"
           />
-        </svg>
+        </svg> */}
       </motion.div>
     </motion.li>
   );
