@@ -154,7 +154,7 @@ export function BookingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
         {isAdmin && (
-          <button onClick={() => setShowBlockModal(true)} className="btn-secondary">
+          <button onClick={() => setShowBlockModal(true)} className="btn-primary">
             <Clock size={20} />
             Bloquear Dia
           </button>

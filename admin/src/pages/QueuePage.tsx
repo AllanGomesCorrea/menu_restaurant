@@ -144,7 +144,7 @@ export function QueuePage() {
         </div>
         <button
           onClick={handleClearQueue}
-          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+          className="btn-primary"
         >
           Limpar Fila do Dia
         </button>
@@ -184,7 +184,7 @@ export function QueuePage() {
             onClick={() => setFilter(status)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
-                ? 'bg-amber-600 text-white'
+                ? 'bg-primary-800 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
