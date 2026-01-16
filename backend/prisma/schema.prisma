@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// ENUMS
+// ================================
+
+enum Role {
+  SUPERVISOR
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum MenuCategory {
+  ENTRADAS
+  PRATOS
+  SOBREMESAS
+  BEBIDAS
+}
+
+enum BookingEnvironment {
+  INDOOR
+  OUTDOOR
+}
+
+enum QueueStatus {
+  WAITING   // Aguardando na fila
+  CALLED    // Foi chamado
+  SEATED    // Sentou na mesa
+  CANCELLED // Cancelou/desistiu
+  NO_SHOW   // Não apareceu quando chamado
+  EXPIRED   // Expirou (reset automático)
+}
+
+// ================================
+// MODELS
+// ================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(SUPERVISOR)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model MenuItem {
+  id          String       @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  category    MenuCategory
+  featured    Boolean      @default(false)
+  available   Boolean      @default(true)
+  imageUrl    String?      @map("image_url")
+  sortOrder   Int          @default(0) @map("sort_order")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([available])
+  @@map("menu_items")
+}
+
+model Booking {
+  id            String             @id @default(uuid())
+  customerName  String             @map("customer_name")
+  customerEmail String             @map("customer_email")
+  customerPhone String             @map("customer_phone")
+  date          DateTime           @db.Date
+  timeSlot      String             @map("time_slot")
+  environment   BookingEnvironment
+  guests        Int
+  observations  String?
+  status        BookingStatus      @default(CONFIRMED)
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  // Não permite duas reservas no mesmo horário, data e ambiente
+  @@unique([date, timeSlot, environment])
+  @@index([date])
+  @@index([status])
+  @@map("bookings")
+}
+
+model BlockedSlot {
+  id          String              @id @default(uuid())
+  date        DateTime            @db.Date
+  timeSlot    String              @map("time_slot")
+  environment BookingEnvironment?
+  reason      String?
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  // Não permite duplicar bloqueio para o mesmo slot
+  @@unique([date, timeSlot, environment])
+  @@index([date])
+  @@map("blocked_slots")
+}
+
+model QueueEntry {
+  id          String      @id @default(uuid())
+  code        String      @unique // Código único alfanumérico (ex: XKM749)
+  name        String
+  phone       String
+  partySize   Int         @default(1) @map("party_size") // Quantidade de pessoas
+  status      QueueStatus @default(WAITING)
+  calledAt    DateTime?   @map("called_at") // Quando foi chamado
+  seatedAt    DateTime?   @map("seated_at") // Quando sentou
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Índices para performance
+  @@index([status])
+  @@index([createdAt])
+  @@index([phone])
+  @@map("queue_entries")
+}
+

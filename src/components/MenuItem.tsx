@@ -1,6 +1,7 @@
 /**
  * Componente MenuItem
- * Exibe um item individual do cardápio
+ * Exibe um item individual do cardápio com foto
+ * Clicável para abrir modal com detalhes
  */
 
 import React from 'react';
@@ -12,68 +13,115 @@ import { formatPrice } from '../data/menuData';
 interface MenuItemProps {
   item: MenuItemType;
   index?: number;
+  onClick?: () => void;
 }
 
 /**
  * Item individual do cardápio
- * Mostra nome, descrição e preço
+ * Card com foto, nome e preço
+ * Clique abre modal com detalhes completos
  */
-export const MenuItem: React.FC<MenuItemProps> = ({ item, index = 0 }) => {
+export const MenuItem: React.FC<MenuItemProps> = ({ item, index = 0, onClick }) => {
+  // Usa logo como imagem padrão quando não há foto
+  const imageUrl = item.image || '/logo.png';
+  const isLogo = !item.image;
+
   return (
     <motion.div
       className={cn(
-        'group relative bg-white rounded-lg p-6',
+        'group relative bg-white rounded-xl overflow-hidden cursor-pointer',
         'border border-primary-200',
         'shadow-md hover:shadow-xl',
         'transition-all duration-300',
         item.featured && 'ring-2 ring-accent-500'
       )}
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{
         duration: 0.5,
-        delay: index * 0.1,
+        delay: index * 0.08,
       }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ y: -4 }}
+      onClick={onClick}
     >
-      {/* Badge de destaque */}
-      {item.featured && (
-        <div className="absolute -top-3 -right-3 bg-accent-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-          ⭐ Destaque
-        </div>
-      )}
-
-      {/* Conteúdo */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          {/* Nome do prato */}
-          <h4 className="text-lg md:text-xl font-display font-bold text-primary-900 mb-2 group-hover:text-primary-700 transition-colors">
-            {item.name}
-          </h4>
-
-          {/* Descrição */}
-          <p className="text-sm md:text-base text-primary-700 leading-relaxed mb-4">
-            {item.description}
-          </p>
-
-          {/* Categoria badge (small) */}
-          <span className="inline-block text-xs font-medium text-primary-600 bg-primary-100 px-3 py-1 rounded-full">
-            {item.category}
-          </span>
-        </div>
-
-        {/* Preço */}
-        <div className="flex-shrink-0 text-right">
-          <div className="text-2xl md:text-3xl font-bold text-accent-600">
-            {formatPrice(item.price)}
+      {/* Imagem */}
+      <div className={cn(
+        "relative h-48 overflow-hidden",
+        isLogo && "bg-primary-50 flex items-center justify-center"
+      )}>
+        <img
+          src={imageUrl}
+          alt={item.name}
+          className={cn(
+            "transition-transform duration-500 group-hover:scale-110",
+            isLogo 
+              ? "w-32 h-32 object-contain" 
+              : "w-full h-full object-cover"
+          )}
+        />
+        {/* Overlay no hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+        
+        {/* Badge de destaque */}
+        {item.featured && (
+          <div className="absolute top-3 left-3 bg-accent-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+            <span>⭐</span>
+            <span>Destaque</span>
           </div>
+        )}
+
+        {/* Ícone de expandir */}
+        <div className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg">
+          <svg
+            className="w-5 h-5 text-primary-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+            />
+          </svg>
         </div>
       </div>
 
-      {/* Linha decorativa */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-accent-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+      {/* Conteúdo */}
+      <div className="p-4">
+        {/* Nome e Preço */}
+        <div className="flex items-start justify-between gap-3">
+          <h4 className="text-lg font-display font-bold text-primary-900 group-hover:text-primary-700 transition-colors line-clamp-2 flex-1">
+            {item.name}
+          </h4>
+          <div className="text-xl font-bold text-accent-600 flex-shrink-0">
+            {formatPrice(item.price)}
+          </div>
+        </div>
+
+        {/* Descrição curta */}
+        <p className="mt-2 text-sm text-primary-600 line-clamp-2">
+          {item.description}
+        </p>
+
+        {/* Call to action sutil */}
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-xs font-medium text-primary-500 bg-primary-50 px-2.5 py-1 rounded-full">
+            {item.category}
+          </span>
+          <span className="text-xs text-primary-400 group-hover:text-primary-600 transition-colors flex items-center gap-1">
+            Ver detalhes
+            <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      {/* Linha decorativa animada */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-accent-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
     </motion.div>
   );
 };
-

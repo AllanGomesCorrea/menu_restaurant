@@ -1,6 +1,7 @@
 /**
  * Página de Reservas
  * Formulário completo para fazer reservas online
+ * Integrado com API do backend
  */
 
 import React, { useEffect } from 'react';
@@ -31,6 +32,7 @@ export const BookingPage: React.FC = () => {
     errors,
     isSubmitting,
     isSuccess,
+    isLoadingSlots,
     availableTimeSlots,
     setName,
     setEmail,
@@ -97,11 +99,7 @@ export const BookingPage: React.FC = () => {
       <section className="relative overflow-hidden text-white py-12 md:py-16">
         {/* Imagem de fundo */}
         <div className="absolute inset-0">
-          <img
-            src="/reserva.jpg"
-            alt="Reservas"
-            className="w-full h-full object-cover"
-          />
+          <img src="/reserva.jpg" alt="Reservas" className="w-full h-full object-cover" />
           {/* Overlay gradiente */}
           <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70" />
         </div>
@@ -112,11 +110,10 @@ export const BookingPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="heading-primary mb-4 drop-shadow-lg">
-              Faça sua Reserva
-            </h1>
+            <h1 className="heading-primary mb-4 drop-shadow-lg">Faça sua Reserva</h1>
             <p className="text-lg md:text-xl text-white/90 drop-shadow-md">
-              Reserve sua mesa e garanta uma experiência inesquecível na melhor cozinha caipira de São Paulo
+              Reserve sua mesa e garanta uma experiência inesquecível na melhor cozinha caipira de
+              São Paulo
             </p>
           </motion.div>
 
@@ -147,7 +144,7 @@ export const BookingPage: React.FC = () => {
       <section className="section-container py-12">
         <div className="max-w-4xl mx-auto">
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               if (validateForm()) {
                 handleSubmit();
@@ -163,35 +160,33 @@ export const BookingPage: React.FC = () => {
               className="bg-white rounded-xl p-6 md:p-8 shadow-lg border-2 border-primary-200"
             >
               <h2 className="text-xl font-display font-bold text-primary-900 mb-6 flex items-center gap-2">
-                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg
+                  className="w-6 h-6 text-primary-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
                 </svg>
                 Seus Dados
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Campo Nome */}
-                <NameField
-                  value={formData.name}
-                  onChange={setName}
-                  error={errors.name}
-                />
+                <NameField value={formData.name} onChange={setName} error={errors.name} />
 
                 {/* Campo Email */}
-                <EmailField
-                  value={formData.email}
-                  onChange={setEmail}
-                  error={errors.email}
-                />
+                <EmailField value={formData.email} onChange={setEmail} error={errors.email} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 {/* Campo Telefone */}
-                <PhoneField
-                  value={formData.phone}
-                  onChange={setPhone}
-                  error={errors.phone}
-                />
+                <PhoneField value={formData.phone} onChange={setPhone} error={errors.phone} />
               </div>
             </motion.div>
 
@@ -209,32 +204,33 @@ export const BookingPage: React.FC = () => {
               />
             </motion.div>
 
-            {/* 2. Horário */}
+            {/* 2. Escolha do Ambiente (ANTES do horário) */}
+            <motion.div
+              id="field-environment"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <EnvironmentSelector
+                selectedEnvironment={formData.environment}
+                onEnvironmentSelect={setEnvironment}
+                error={errors.environment}
+              />
+            </motion.div>
+
+            {/* 3. Horário (DEPOIS do ambiente - depende dele) */}
             <motion.div
               id="field-timeSlot"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
             >
               <TimeSlotSelector
                 timeSlots={availableTimeSlots}
                 selectedTimeSlot={formData.timeSlot}
                 onTimeSlotSelect={setTimeSlot}
                 error={errors.timeSlot}
-              />
-            </motion.div>
-
-            {/* 3. Escolha do Ambiente */}
-            <motion.div
-              id="field-environment"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <EnvironmentSelector
-                selectedEnvironment={formData.environment}
-                onEnvironmentSelect={setEnvironment}
-                error={errors.environment}
+                isLoading={isLoadingSlots}
               />
             </motion.div>
 
@@ -284,8 +280,19 @@ export const BookingPage: React.FC = () => {
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-3">
                     <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Processando Reserva...
                   </span>
@@ -296,7 +303,8 @@ export const BookingPage: React.FC = () => {
 
               {/* Informações de segurança */}
               <p className="text-center text-sm text-primary-600 mt-4">
-                Seus dados estão seguros. Ao confirmar, você concorda com nossas políticas de reserva.
+                Seus dados estão seguros. Ao confirmar, você concorda com nossas políticas de
+                reserva.
               </p>
             </motion.div>
           </form>
@@ -310,7 +318,12 @@ export const BookingPage: React.FC = () => {
           >
             <h3 className="text-lg font-semibold text-primary-900 mb-3 flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Precisa de ajuda?
             </h3>
@@ -342,4 +355,3 @@ export const BookingPage: React.FC = () => {
     </motion.div>
   );
 };
-

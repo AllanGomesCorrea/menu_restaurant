@@ -1,0 +1,114 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: casa_do_porco_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: casa_do_porco
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - casa_do_porco_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin - Interface para gerenciar o banco (apenas dev)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: casa_do_porco_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@casadoporco.com.br
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - casa_do_porco_network
+    profiles:
+      - dev
+
+  # Backend NestJS
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: casa_do_porco_api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/casa_do_porco?schema=public
+      JWT_SECRET: ${JWT_SECRET:-casa-do-porco-jwt-secret-dev-2024}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-development}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@casadoporco.com.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - casa_do_porco_network
+    volumes:
+      # Para hot reload em desenvolvimento
+      - ./backend/src:/app/src:delegated
+      - ./backend/prisma:/app/prisma:delegated
+    profiles:
+      - dev
+      - prod
+
+  # Frontend Cliente (apenas produção - usa Nginx para servir arquivos estáticos)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: casa_do_porco_frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    networks:
+      - casa_do_porco_network
+    profiles:
+      - prod
+
+  # Admin Panel (apenas produção - usa Nginx para servir arquivos estáticos)
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: casa_do_porco_admin
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+    networks:
+      - casa_do_porco_network
+    profiles:
+      - prod
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  casa_do_porco_network:
+    driver: bridge
+
